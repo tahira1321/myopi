@@ -1,0 +1,28 @@
+# 仮想環境
+.venv/
+
+# 環境変数・機密情報
+.env
+.flaskenv
+
+# Pythonキャッシュ
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# データベース関連
+instance/
+db.sql
+*.sqlite
+
+# ログファイル
+*.log
+
+# OS固有のファイル
+.DS_Store
+
+# ビルド・配布物
+dist/
+build/
+*.egg-info/

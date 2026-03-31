@@ -1,0 +1,55 @@
+<!-- base.htmlを継承 -->
+{% extends 'base.html' %}
+
+{% block title %}メモの新規作成と一覧{% endblock %}
+
+{% block content %}
+
+<!-- input form area -->
+<section class="form-container">
+    <form action="{{ url_for('main.index') }}" method="post" id="memo-form">
+        <fieldset>
+            <legend>新規メモ入力</legend>
+            <input type="hidden" name="category" id="current-category" value="question">
+            <p>
+                <label for="title">タイトル</label>
+                <input type="text" id="title" name="title"  placeholder="テーマ">
+            </p>
+            <p>
+                <label for="content">内容</label>
+                <textarea id="content" name="content" placeholder="内容"></textarea>
+            </p>
+            <p>
+                <input type="date" name="question_date" id="question_date">
+            </p>
+            <p>
+            <button type="button" id="cancelBtn" class="btn">キャンセル</button>
+                <button type="submit">確定</button>
+            </p>
+        </fieldset>
+    </form>
+</section>
+
+<!-- desplay all -->
+<h1>メモ一覧</h1>
+<section class="memo-grid">
+    {% for memo in memos %}
+    <article class="memo-card">   
+        <h3>{{ memo.title }}</h3>
+        <p>{{ memo.content }}</p>
+        <div class="memo-footer">
+            <time datetime="{{ memo.question_date }}">
+                疑問日：{{ memo.question_date }}
+            </time>
+            <p>
+                <button type="button" class="edBtn" data-id="{{ memo.id }}">edit</button>
+                <button type="button" class="delBtn" data-id="{{ memo.id }}">delete</button>
+            </p>
+        </div>
+    </article>
+    {% else %}
+        <p class="empty-message">まだメモがありません。最初の疑問を投稿しよう！！</p>
+    {% endfor %}
+</section>
+
+{% endblock %}

@@ -1,0 +1,35 @@
+<!-- base.htmlを継承 -->
+{% extends 'base.html' %}
+
+{% block title %}メモの編集{% endblock %}
+
+{% block content %}
+
+<!-- edit form -->
+<p>編集画面予定</p>
+<section class="form-container">
+    <form action="{{ url_for('main.update_memo') }}" method="post" id="memo-form">
+        <fieldset>
+            <legend>メモを編集</legend>
+            <input type="hidden" name="category" id="current-category" value="question">
+            <input type="hidden" name="id" value="{{ memo.id  }}">
+            <p>
+                <label for="title">タイトル</label>
+                <input type="text" id="title" name="title" value="{{ memo.title }}">
+            </p>
+            <p>
+                <label for="content">内容</label>
+                <textarea id="content" name="content">{{ memo.content }}</textarea>
+            </p>
+            <p>
+                <input type="date" name="question_date" id="question_date" value="{{ memo.question_date }}">
+            </p>
+            <p>
+            <button type="button" id="cancelBtn" class="btn">キャンセル</button>
+                <button type="submit">確定</button>
+            </p>
+        </fieldset>
+    </form>
+</section>
+
+{% endblock %}
