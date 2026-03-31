@@ -1,12 +1,23 @@
-blinker==1.9.0
-click==8.1.8
-flask==3.0.3
-Flask-Login==0.6.3
-importlib-metadata==8.7.1
-itsdangerous==2.2.0
-jinja2==3.1.6
-markupsafe==3.0.3
-pymysql==1.1.2
-python-dotenv==1.0.1
-werkzeug==3.0.6
-zipp==3.23.0
+# --- Core Framework (安定した Flask 3.0系) ---
+Flask ~= 3.0.3
+Flask-Login ~= 0.6.3
+python-dotenv ~= 1.0.1
+Jinja2 ~= 3.1.6
+Werkzeug ~= 3.0.6
+
+# --- Database & SQLAlchemy (PyMySQLをエンジンに使用) ---
+# FlaskとSQLAlchemyを繋ぐデファクトスタンダード
+Flask-SQLAlchemy ~= 3.1.1
+PyMySQL ~= 1.1.2
+
+# --- Security & API (Google Play / モバイル展開の布石) ---
+# 外部アプリ接続許可（CORS）
+Flask-CORS ~= 5.0.0
+# 安全なトークン認証（JWT）
+PyJWT ~= 2.10.1
+# 暗号化基盤（セキュリティの核）
+cryptography ~= 43.0.3
+
+# --- Production & Docker (本番環境への橋渡し) ---
+# 本番用Webサーバー（WSGI）
+gunicorn ~= 23.0.0
