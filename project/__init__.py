@@ -6,7 +6,12 @@ import os
 
 # Third-party Library:フレームワーク本体・pipでインストールした拡張機能など
 from flask import Flask, render_template
+from flask_login import LoginManager
 from dotenv import load_dotenv
+from flask_login import LoginManager
+
+# Local Module
+from .models import db, User
 
 # Read .env:アプリ起動前に環境変数を確定
 load_dotenv()
@@ -14,9 +19,7 @@ load_dotenv()
 # ====================
 # Extensions Instance 
 # ====================
-### 以下は記載位置の例
-### db = SQLAlchemy()
-### login_manager = LoginManager()
+login_manager = LoginManager()
 
 
 # ====================
@@ -32,18 +35,30 @@ def create_app():
 
     ## Database
     ### app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URI')
-    app.config.update(
-            DB_HOST = os.environ.get('DB_HOST', '127.0.0.1'),
-            DB_USER = os.environ.get('DB_USER', 'root'),
-            DB_PASSWORD = os.environ.get('DB_PASSWORD', 'root123'),
-            DB_NAME = os.environ.get('DB_NAME', 'project_db')
-            )
+    host = os.environ.get('DB_HOST', '127.0.0.1')
+    user = os.environ.get('DB_USER', 'root')
+    pw = os.environ.get('DB_PASSWORD', 'root123')
+    db_name = os.environ.get('DB_NAME', 'project_db')
 
+    app.config['SQLALCHEMY_DATABASE_URI'] = f"mysql+pymysql://{user}:{pw}@{host}/{db_name}"
+    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+    ## login
+    # ログインしていないときに遷移させるページ
+    login_manager.login_view = 'main.login'
+    # ログインを促すメッセージのカテゴリ
+    login_manager.login_message_category = 'info'
+    
     ## Debug
 
     # --- Initialize Extensions:拡張機能とアプリの紐づけ ---
-    ### db.init_app(app)
-    ### login_manager.init_app(app)
+    db.init_app(app)
+    login_manager.init_app(app) # アプリと連携
+
+    # ユーザー読込のルールを記載
+    @login_manager.user_loader
+    def load_user(user_id):
+        return User.query.get(int(user_id))
     
     # --- Error Handling ---
     ## カスタムエラーページの登録
@@ -58,8 +73,9 @@ def create_app():
     from .main import main
     app.register_blueprint(main)
 
-    ##Models import:DBテーブル定義の読込
-    ### from . import models
+    # アプリ起動時にテーブルを自動生成
+    with app.app_context():
+        db.create_all()
 
     return app
 
@@ -74,15 +90,7 @@ def register_error_handlers(app):
     pass
 
 def register_request_hooks(app):
-    # リクエストのライフサイクルに合わせた処理を登録
-    @app.teardown_appcontext
-    def close_db_connection(exception):
-        """
-        リクエスト終了時に実行される処理
-        models.pyなどで管理しているDB接続を安全に閉じるコードをここに記載
-        例 from .models import get_db; get_db().close()
-        """
-        pass
+    pass
 
 
 # ====================

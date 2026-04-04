@@ -5,8 +5,12 @@
 
 # Third-party Library: フレームワーク関連
 from flask import Blueprint, render_template, request, redirect, url_for, flash
+from flask_login import login_user, logout_user, login_required, current_user
+from .models import Opinion, User
+from werkzeug.security import check_password_hash
 
 # Local Modules: (循環参照防止のため、関数内でインポート)
+from .models import Opinion
 
 # ==================== 
 # Blueprint Instance Creation
@@ -15,83 +19,105 @@ from flask import Blueprint, render_template, request, redirect, url_for, flash
 main = Blueprint('main', __name__)
 
 # ==================== 
+# Routes:Auth (認証関連)
+# ==================== 
+# --- login ---
+@main.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.form == 'POST':
+        email = request.form.get('email')
+        password = request.form.get('password')
+        remember = True if request.form.get('remember') else False # ログイン状態を保持
+
+        user = User.query.filter_by(email=email).first()
+
+        # ユーザーが存在しパスワードが一致するか確認
+        if user and check_password_hash(user.password, password):
+            # ログイン実行　※remember = True でブラウザを閉じても維持
+            login_user(user, remember=remember)
+            flash("ログインしました", "success")
+        else:
+            flash("メールアドレスまたはパスワードが正しくありません", "danger")
+
+    return render_template('auth/login.html')
+
+# --- logout ---
+@main.route('/logout')
+@login_required # ログイン中のみアクセス可能
+def logout():
+    logout_user()
+    flash("ログアウトしました", "info")
+    return redirect(url_for('main.login'))
+        
+# ==================== 
 # Routes:View Function
 # ==================== 
 ## --- Home (Memo List & Registration) ---
 @main.route('/', methods=['GET', 'POST'])
+@login_required # 未ログイン時は自動でログイン画面に遷移する
 def index():
-    # import models
-    from . import models
-
     # case POST
     if request.method == 'POST':
         ## formのname属性からデータを取得
-        title = request.form.get('title')
-        content = request.form.get('content')
-        question_date = request.form.get('question_date')
-        
-        ## models.pyを使いDBに保存
-        if models.save_memo(title, content, question_date):
-            flash("メモを保存しました！", "success")
-        else:
-            flash("保存に失敗しました", "danger")
+        opi_title = request.form.get('title')
+        opi_content = request.form.get('content')
+        opi_question_date = request.form.get('question_date')
 
-        ## 保存後に自分自身にredirect
+        # インスタンス化
+        new_opinion = Opinion(
+                title = opi_title, # 左:カラム名 右:フォームから取得したデータが入った変数
+                content = opi_content,
+                question_date = opi_question_date,
+                user_id = current_user.id # usersテーブルのidから取得
+                )
+
+        # Save
+        try:
+            new_opinion.save()
+            flash("メモを保存しました", "success")
+        except Exception as e:
+            flash(f"保存に失敗しました: {e}", "danger")
+
         return redirect(url_for('main.index'))
 
     # case GET
-    ## modelsで全データを取得
-    all_memos = models.get_all_memos()
+    all_opinions = Opinion.get_all_active()
+    return render_template('index.html', opinions=all_opinions)
 
-    ## 所得したデータをHTMLに渡す
-    return render_template('index.html', memos=all_memos)
+# --- Edit ---
+@main.route('/edit/<int:opinion_id>', methods=['GET', 'POST'])
+def edit_opinion(opinion_id):
+    # get opinion's id
+    opinion = Opinion.get_by_id(opinion_id)
 
-## --- Edit ---
-@main.route('/edit/<int:memo_id>', methods=['GET', 'POST'])
-def move_to_edit(memo_id):
-    memo = models.get_memo_by_id(memo_id)
-    return render_template('edit.html', memo=memo)
-
-# データを取得し編集画面に表示
-#@main.route('/edit', methods=['GET', 'POST'])
-#def display_edit():
-#    return 
-
-# 編集を登録
-@main.route('/edit/<int:memo_id>', methods=['GET', 'POST'])
-def edit_memo(memo_id):
-    # import models
-    from . import models
-    
-    # Case POST
-    if request.method == 'POST':
-        memo_id = request.form.get('id')
-        title = request.form.get('title')
-        content = request.form.get('content')
-        question_date = request.form.get('question_date')
-
-        # update memo
-        if models.update_memo(title, content, question_date, memo_id):
-            flash("メモの変更完了", "success")
-            return redirect(url_for('main.index'))
-        else:
-            flash("メモの更新に失敗しました", "danger")
-
+    if not opinion:
+        flash("該当するデータはありません", "warning")
         return redirect(url_for('main.index'))
 
-    # Case GET
-    memo = models.get_memo_by_id(memo_id)
-    if not memo:
-        flash("対象のメモが見つかりません", "warning")
-        return ridirect(url_for('main.index'))
+    # case POST
+    if request.method == 'POST':
+        # 既存のインスタンス化の中身を書き換える
+        opinion.title = request.form.get('title')
+        opinion.content = request.form.get('content')
+        opinion.question_date = request.form.get('question_date')
 
-# --Delete
-@main.route('/delete/<int:memo_id>', methods=['GET', 'POST'])
-def delete_memo(memo_id):
-    from . import models
-    models.delete_memo(memo_id)
+        # Save
+        opiniom.save()
+        flash("メモを更新しました", "success")
+        return redirect(url_for('main.index'))
+
+    # case GET
+    return render_template('edit.html', opinion=opiniom)
+
+# --- Delete ---
+@main.route('/delete/<int:opinion_id>')
+def delete_opinion(opinion_id):
+    opinion = Opinion.get_by_id(opinion_id)
+
+    if opinion:
+        opinion.delete()
+        flash("メモを削除しました", "success")
     return redirect(url_for('main.index'))
-
 
 # ==================== 
 # Error Handling:Blueprint Specific

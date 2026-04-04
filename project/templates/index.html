@@ -7,7 +7,7 @@
 
 <!-- input form area -->
 <section class="form-container">
-    <form action="{{ url_for('main.index') }}" method="post" id="memo-form">
+    <form action="{{ url_for('main.index') }}" method="post" id="opi-form">
         <fieldset>
             <legend>新規メモ入力</legend>
             <input type="hidden" name="category" id="current-category" value="question">
@@ -20,7 +20,7 @@
                 <textarea id="content" name="content" placeholder="内容"></textarea>
             </p>
             <p>
-                <input type="date" name="question_date" id="question_date">
+                <input type="date" name="question_date" id="question_date" required>
             </p>
             <p>
             <button type="button" id="cancelBtn" class="btn">キャンセル</button>
@@ -32,18 +32,18 @@
 
 <!-- desplay all -->
 <h1>メモ一覧</h1>
-<section class="memo-grid">
-    {% for memo in memos %}
-    <article class="memo-card">   
-        <h3>{{ memo.title }}</h3>
-        <p>{{ memo.content }}</p>
-        <div class="memo-footer">
-            <time datetime="{{ memo.question_date }}">
-                疑問日：{{ memo.question_date }}
+<section class="opi-grid">
+    {% for opinion in opinions %}
+    <article class="opi-card">   
+        <h3>{{ opinion.title }}</h3>
+        <p>{{ opinion.content }}</p>
+        <div class="opi-footer">
+            <time datetime="{{ opinion.question_date }}">
+                疑問日：{{ opinion.question_date }}
             </time>
             <p>
-                <button type="button" class="edBtn" data-id="{{ memo.id }}">edit</button>
-                <button type="button" class="delBtn" data-id="{{ memo.id }}">delete</button>
+                <button type="button" class="edBtn" data-id="{{ opinion.id }}">edit</button>
+                <button type="button" class="delBtn" data-id="{{ opinion.id }}">delete</button>
             </p>
         </div>
     </article>
