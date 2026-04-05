@@ -6,6 +6,7 @@
 # Third-party Library: MySQL接続用ドライバ
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
+from flask_login import UserMixin
 
 # --------------------
 # Create Instance
@@ -15,7 +16,7 @@ db = SQLAlchemy()
 # --------------------
 # Define Class
 # --------------------
-class User(db.Model):
+class User(db.Model, UserMixin):
     # --- Specify Table ---
     __tablename__ = 'users'
 
