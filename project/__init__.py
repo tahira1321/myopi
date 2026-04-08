@@ -9,6 +9,7 @@ from flask import Flask, render_template
 from flask_login import LoginManager
 from dotenv import load_dotenv
 from flask_login import LoginManager
+from werkzeug.security import generate_password_hash
 
 # Local Module
 from .models import db, User
@@ -76,6 +77,18 @@ def create_app():
     # アプリ起動時にテーブルを自動生成
     with app.app_context():
         db.create_all()
+
+        # if not exist test user
+        if not User.query.filter_by(email="tahira@example.com").first():
+            hashed_pw = generate_password_hash("test1234", method='pbkdf2:sha256')
+            test_user = User(
+                    email="tahira@example.com",
+                    username="tahira",
+                    password=hashed_pw
+                    )
+            db.session.add(test_user)
+            db.session.commit()
+            print("--- テストユーザーを作成しました ---")
 
     return app
 

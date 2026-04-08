@@ -24,7 +24,7 @@ main = Blueprint('main', __name__)
 # --- login ---
 @main.route('/login', methods=['GET', 'POST'])
 def login():
-    if request.form == 'POST':
+    if request.method == 'POST':
         email = request.form.get('email')
         password = request.form.get('password')
         remember = True if request.form.get('remember') else False # ログイン状態を保持
@@ -36,6 +36,7 @@ def login():
             # ログイン実行　※remember = True でブラウザを閉じても維持
             login_user(user, remember=remember)
             flash("ログインしました", "success")
+            return redirect(url_for('main.index'))
         else:
             flash("メールアドレスまたはパスワードが正しくありません", "danger")
 
@@ -49,6 +50,11 @@ def logout():
     flash("ログアウトしました", "info")
     return redirect(url_for('main.login'))
         
+# --- signup ---
+@main.route('/signup')
+def signup():
+    return "新規登録画面"
+
 # ==================== 
 # Routes:View Function
 # ==================== 

@@ -22,9 +22,9 @@ class User(db.Model, UserMixin):
 
     # --- Specify Column :カラム名 = db.Column(型, 設定) ---
     id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(50), unique=True, nullable=False)
+    username = db.Column(db.String(255), unique=True, nullable=False)
     email = db.Column(db.String(255), nullable=False)
-    password = db.Column(db.String(64), nullable=False)
+    password = db.Column(db.String(255), nullable=False)
 
     # --- Insert User ---
     # insert data
