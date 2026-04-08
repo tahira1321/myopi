@@ -49,6 +49,11 @@ def logout():
     flash("ログアウトしました", "info")
     return redirect(url_for('main.login'))
         
+# --- signup ---
+@main.route('/signup')
+def signup():
+    return "新規登録画面"
+    # return render_template('auth/signup.html')
 # ==================== 
 # Routes:View Function
 # ==================== 
