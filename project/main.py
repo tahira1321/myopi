@@ -54,6 +54,7 @@ def logout():
 @main.route('/signup')
 def signup():
     return "新規登録画面"
+    # return render_template('auth/signup.html')
 
 # ==================== 
 # Routes:View Function

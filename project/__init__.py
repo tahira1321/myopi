@@ -37,7 +37,7 @@ def create_app():
     ## Database
     ### app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URI')
     host = os.environ.get('DB_HOST', '127.0.0.1')
-    user = os.environ.get('DB_USER', 'root')
+    user = os.environ.get('DB_USER', 'tahira')
     pw = os.environ.get('DB_PASSWORD', 'root123')
     db_name = os.environ.get('DB_NAME', 'project_db')
 
