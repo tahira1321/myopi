@@ -15,11 +15,11 @@ if (cancelBtn) {
 const edBtns = document.querySelectorAll('.edBtn');
 edBtns.forEach(function(Btn) {
     Btn.addEventListener('click', function() {
-        const memoId = this.getAttribute('data-id');
+        const opinionId = this.getAttribute('data-id');
         // コンソールで動作確認
-        console.log("Edit ID:", memoId);
-        if (memoId) {
-            window.location.href = "/edit/" + memoId;
+        console.log("Edit ID:", opinionId);
+        if (opinionId) {
+            window.location.href = "/edit/" + opinionId;
         }
     });
 });
@@ -28,9 +28,9 @@ edBtns.forEach(function(Btn) {
 const delBtn = document.querySelectorAll('.delBtn');
 delBtn.forEach(function(Btn) {
     Btn.addEventListener('click', function() {
-        const memoId = this.getAttribute('data-id');
+        const opinionId = this.getAttribute('data-id');
         if (confirm("本当に削除しますか？")) {
-            window.location.href = "/delete/" + memoId;
+            window.location.href = "/delete/" + opinionId;
         }
     });
 });

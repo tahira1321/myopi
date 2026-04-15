@@ -1,0 +1,43 @@
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
+    <div class="container">
+        <a class="navbar-brand" href="{{ url_for('main.index') }}">まいおぴ</a>
+
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar" aria-controls="mainNavbar" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div id="mainNavbar" class="collapse navbar-collapse">
+            <ul class="navbar-nav ms-auto ms-2 mb-lg-0">
+                {% if current_user.is_authenticated %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('main.index') }}">ホーム</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">マイページ</a>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        {{ current_user.username }}さん
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                        <li><a class="dropdown-item" href="{{ url_for('main.logout') }}">ログアウト</a></li>
+                    </ul>
+                </li>
+                {% else %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('main.login') }}">ログイン</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('main.signup') }}">新規登録</a>
+                </li>
+                {% endif %}
+            </ul>
+        </div> <!-- #mainNavbar -->
+        
+        <form class="d-flex ms-lg-3" action="{{ url_for('main.index') }}" method="get">
+            <input class="form-control form-control-sm me-2" type="search" name="q" placeholder="検索..." aria-label="Search">
+            <button class="btn btn-outline-light btn-sm" type="submit">Search</button>
+        </form>
+
+    </div> <!-- .container -->
+</nav>

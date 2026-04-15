@@ -6,50 +6,90 @@
 {% block content %}
 
 <!-- input form area -->
-<section class="form-container">
-    <form action="{{ url_for('main.index') }}" method="post" id="opi-form">
-        <fieldset>
-            <legend>新規メモ入力</legend>
-            <input type="hidden" name="category" id="current-category" value="question">
-            <p>
-                <label for="title">タイトル</label>
-                <input type="text" id="title" name="title"  placeholder="テーマ">
-            </p>
-            <p>
-                <label for="content">内容</label>
-                <textarea id="content" name="content" placeholder="内容"></textarea>
-            </p>
-            <p>
-                <input type="date" name="question_date" id="question_date" required>
-            </p>
-            <p>
-            <button type="button" id="cancelBtn" class="btn">キャンセル</button>
-                <button type="submit">確定</button>
-            </p>
-        </fieldset>
-    </form>
-</section>
+<div class="container mt-4 text-end">
+    <button class="btn btn-primary shadow-sm" type="button" data-bs-toggle="modal" data-bs-target="#createOpinionModal">
+        + 新規メモ作成
+    </button>
+</div> <!-- .container -->
+
+<div id="createOpinionModal" class="modal fade" tabindex="-1" aria-labelledby="createOpinionModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 id="createOpinionModalLabel" class="modal-title">新規メモ入力</h5>
+                <button class="btn-close" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div> <!-- .modal-header -->
+
+            <form action="{{ url_for('main.index') }}" method="post" id="opi-form">
+                <div class="modal-body">
+                    <!-- title -->
+                    <div class="mb-3">
+                        <label class="form-label" for="title">タイトル</label>
+                        <input id="title" class="form-control" type="text" name="title" placeholder="テーマを入力" required>
+                    </div>
+
+                    <!-- content -->
+                    <div class="mb-3">
+                        <label class="form-label" for="content">内容</label>
+                        <textarea id="content" class="form-control" type="text" name="content" rows="5" placeholder="疑問点や学んだことを自由に記載" required></textarea>
+                    </div>
+
+                    <!-- date -->
+                    <div class="mb-3">
+                        <label class="form-label" for="question_date">日付</label>
+                        <input id="question_date" class="form-control" type="date" name="question_date" required>
+                    </div>
+                </div> <!-- .modal-body -->
+
+                <div class="modal-footer">
+                    <!-- buttons -->
+                    <button class="btn btn-secondary" type="button" data-bs-dismiss="modal">キャンセル</button>
+                    <button class="btn btn-primary" type="submit">確定</button>
+                </div> <!-- .modal-footer -->
+            </form>
+        </div> <!-- .modal-content -->
+    </div> <!-- .modal-dialog -->
+</div> <!-- #createOpinionModal -->
 
 <!-- desplay all -->
-<h1>メモ一覧</h1>
-<section class="opi-grid">
-    {% for opinion in opinions %}
-    <article class="opi-card">   
-        <h3>{{ opinion.title }}</h3>
-        <p>{{ opinion.content }}</p>
-        <div class="opi-footer">
-            <time datetime="{{ opinion.question_date }}">
-                疑問日：{{ opinion.question_date }}
-            </time>
-            <p>
-                <button type="button" class="edBtn" data-id="{{ opinion.id }}">edit</button>
-                <button type="button" class="delBtn" data-id="{{ opinion.id }}">delete</button>
-            </p>
+<div class="container mt-5">
+    <h2 class="mb-4 border-bottom pb-2">メモ一覧</h2>
+
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+        {% for opinion in opinions %}
+        <div class="col">
+            <div class="card h-100 shadow-sm border-0">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <h5 class="card-title fw-bold text-dark">{{ opinion.title }}</h5>
+                        <span class="badge bg-primary-subtle text-primary rounded-pill small">Question</span>
+                    </div> <!-- .d-flex -->
+
+                    <p class="card-text text-secondary" style="font-size: 0.95rem;">
+                    {{ opinion.content | truncate(100) }}
+                    </p>
+                </div> <!-- .card-body -->
+
+                <div class="card-footer bg-transparent border-0 d-flex justify-content-between align-items-center">
+                    <small class="text-muted">
+                        <i class="bi bi-calendar3"></i>{{ opinion.question_date }}
+                    </small>
+
+                    <!-- buttons -->
+                    <div class="btn-group">
+                        <button type="button" data-id="{{ opinion.id }}" class="btn btn-outline-secondary btn-sm edBtn">編集</button>
+                        <button type="button" data-id="{{ opinion.id }}" class="btn btn-outline-danger btn-sm delBtn">削除</button>
+                    </div> <!-- .btn-group -->
+                </div> <!-- .card-footer -->
+            </div> <!-- .card -->
+        </div> <!-- .col -->
+        {% else %}
+
+        <div class="col-12 text-center py-5">
+            <p class="text-muted">まだ疑問がありません。最初の疑問を投稿しよう！</p>
         </div>
-    </article>
-    {% else %}
-        <p class="empty-message">まだメモがありません。最初の疑問を投稿しよう！！</p>
-    {% endfor %}
-</section>
+        {% endfor %}
+    </div> <!-- .row -->
+</div> <!-- .container -->
 
 {% endblock %}

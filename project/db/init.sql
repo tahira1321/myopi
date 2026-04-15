@@ -8,7 +8,7 @@ USE project_db;
 -- ====================
 -- 2. Table Definition (テーブル作成)
 -- ====================
-CREATE TABLE IF NOT EXISTS memos (
+CREATE TABLE IF NOT EXISTS opinions (
     id INT AUTO_INCREMENT PRIMARY KEY,
     title TEXT NOT NULL,
     content TEXT NOT NULL,
@@ -24,7 +24,7 @@ CREATE TABLE IF NOT EXISTS memos (
 -- 3. Initial Data (サンプルデータ)
 -- ====================
 -- 動作確認用の初期データ（最初の1件目）
-INSERT INTO memos (title, content, question_date, status)
+INSERT INTO opinions (title, content, question_date, status)
 VALUES (
     '開発スタート', 
     '今日からメモアプリの開発を開始しました。', 

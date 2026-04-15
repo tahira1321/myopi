@@ -93,6 +93,7 @@ def index():
 
 # --- Edit ---
 @main.route('/edit/<int:opinion_id>', methods=['GET', 'POST'])
+@login_required
 def edit_opinion(opinion_id):
     # get opinion's id
     opinion = Opinion.get_by_id(opinion_id)
@@ -109,12 +110,12 @@ def edit_opinion(opinion_id):
         opinion.question_date = request.form.get('question_date')
 
         # Save
-        opiniom.save()
+        opinion.save()
         flash("メモを更新しました", "success")
         return redirect(url_for('main.index'))
 
     # case GET
-    return render_template('edit.html', opinion=opiniom)
+    return render_template('edit.html', opinion=opinion)
 
 # --- Delete ---
 @main.route('/delete/<int:opinion_id>')
