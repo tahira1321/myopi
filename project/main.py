@@ -89,7 +89,7 @@ def index():
 
     # case GET
     all_opinions = Opinion.get_all_active()
-    return render_template('index.html', opinions=all_opinions)
+    return render_template('index.html', name=current_user.username,  opinions=all_opinions)
 
 # --- Edit ---
 @main.route('/edit/<int:opinion_id>', methods=['GET', 'POST'])
