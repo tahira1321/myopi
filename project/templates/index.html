@@ -5,7 +5,7 @@
 
 {% block content %}
 
-<!-- input form area -->
+<!-- create modal -->
 <div class="container mt-4 text-end">
     <button class="btn btn-primary shadow-sm" type="button" data-bs-toggle="modal" data-bs-target="#createOpinionModal">
         + 新規メモ作成
@@ -50,6 +50,38 @@
         </div> <!-- .modal-content -->
     </div> <!-- .modal-dialog -->
 </div> <!-- #createOpinionModal -->
+
+<!-- edit modal -->
+<div class="modal fade" id="editOpinionModal" tabindex="-1" aria-labelledby="editOpinionModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 id="editOpinionModalLabel" class="modal-title">メモを編集</h5>
+                <button class="btn-close" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="" method="post" id="edit-opi-form">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label" for="edit-title">タイトル</label>
+                        <input id="edit-title" class="form-control" type="text" name="title" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="edit-content">内容</label>
+                        <textarea id="edit-content" class="form-control" name="content" rows="5" required></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="edit-question_date">日付</label>
+                        <input id="edit-question_date" class="form-control" type="date" name="question_date" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" type="button" data-bs-dismiss="modal">キャンセル</button>
+                    <button class="btn btn-primary" type="submit">更新する</button>
+                </div>
+            </form>
+        </div> <!-- .modal-content -->
+    </div> <!-- .modal-dialog -->
+</div> <!-- #editOpinionModal -->
 
 <!-- desplay all -->
 <div class="container mt-5">

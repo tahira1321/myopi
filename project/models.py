@@ -65,7 +65,7 @@ class Opinion(db.Model):
     # --- Delete ---
     def delete(self):
         """ 論理削除：statusをdeleteにして保存 """
-        self.status = 'delete'
+        self.status = 'deleted'
         db.session.commit()
         return True
 

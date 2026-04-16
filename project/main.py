@@ -53,8 +53,7 @@ def logout():
 # --- signup ---
 @main.route('/signup')
 def signup():
-    return "新規登録画面"
-    # return render_template('auth/signup.html')
+    return render_template('auth/signup.html')
 
 # ==================== 
 # Routes:View Function
@@ -102,9 +101,8 @@ def edit_opinion(opinion_id):
         flash("該当するデータはありません", "warning")
         return redirect(url_for('main.index'))
 
-    # case POST
+    # POSTの場合のみ更新処理実行
     if request.method == 'POST':
-        # 既存のインスタンス化の中身を書き換える
         opinion.title = request.form.get('title')
         opinion.content = request.form.get('content')
         opinion.question_date = request.form.get('question_date')
@@ -114,8 +112,8 @@ def edit_opinion(opinion_id):
         flash("メモを更新しました", "success")
         return redirect(url_for('main.index'))
 
-    # case GET
-    return render_template('edit.html', opinion=opinion)
+    # GETでアクセスされた場合は一覧に戻す
+    return redirect(url_for('main.index'))
 
 # --- Delete ---
 @main.route('/delete/<int:opinion_id>')
