@@ -32,18 +32,40 @@ class User(db.Model, UserMixin):
         db.session.add(self)
         db.session.commit()
 
+class Category(db.Model):
+    __tablename__ = 'categories'
+
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(50), nullable=False)
+    color_code = db.Column(db.String(7), default='#E3F2FD')
+    symbol = db.Column(db.String(10), default='^▽^')
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    opinions = db.relationship('Opinion', backref='category_rel', lazy=True)
+
 class Opinion(db.Model):
     __tablename__ = 'opinions'
 
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(255), nullable=False)
-    content = db.Column(db.Text)
+    content = db.Column(db.Text, nullable=True)
+
     question_date = db.Column(db.Date, nullable=False)
-    status = db.Column(db.String(20), nullable=False, default='active')
     created_at = db.Column(db.DateTime,default=datetime.now)
+    updated_at = db.Column(db.DateTime, default=datetime.now, onupdate=datetime.now)
+    last_reviewed_at = db.Column(db.DateTime,default=datetime.now) # リマインド用
+    deadline = db.Column(db.Date, nullable=True) # 期限
 
     # 外部キー: usersテーブルとidの紐づけ
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)
+
+    # category
+    category_id = db.Column(db.Integer, db.ForeignKey('categories.id'), nullable=True)
+    # 尺度
+    priority = db.Column(db.Integer, default=3) # 重要度
+    urgency = db.Column(db.Integer, default=3) # 緊急度
+    satisfaction = db.Column(db.Integer, default=0) # 納得度
+    # 詳細ステータス ('draft': 下書き, 'active': 確定, 'deleted': 削除)
+    status = db.Column(db.String(20), nullable=False, default='active')
 
     # --- Create & Update ---
     def save(self):
@@ -53,9 +75,30 @@ class Opinion(db.Model):
 
     # --- Read ---
     @classmethod
-    def get_all_active(cls):
-        """ 削除されていない主張を降順で全件取得 """
-        return cls.query.filter(cls.status != 'deleted').order_by(cls.created_at.desc()).all()
+    def get_all_active(cls, user_id, sort_type='newest'):
+        """指定されたユーザーの有効なメモをソートして取得"""
+        query = cls.query.filter(cls.user_id == user_id, cls.status != 'deleted')
+
+        # フィルタリング条件の追加
+        if sort_type == 'drafts':
+            query = query.filter(cls.status == 'draft')
+        elif sort_type == 'active_only':
+            query = query.filter(cls.status == 'active')
+
+        # ソート順の決定
+        if sort_type == 'oldest':
+            return query.order_by(cls.created_at.asc()).all()
+        elif sort_type == 'title':
+            return query.order_by(cls.title.asc()).all()
+        else:
+            return query.order_by(cls.created_at.desc()).all()
+
+    @classmethod
+    def get_all_drafts(cls):
+        """下書き一覧を取得"""
+        return cls.query.filter(
+                cls.status ==  'draft'
+                ).order_by(cls.created_at.desc()).all()
 
     @classmethod
     def get_by_id(cls, opinion_id):

@@ -7,10 +7,11 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash
 from flask_login import login_user, logout_user, login_required, current_user
 from .models import Opinion, User
-from werkzeug.security import check_password_hash
+from werkzeug.security import generate_password_hash, check_password_hash
+from datetime import datetime
 
 # Local Modules: (循環参照防止のため、関数内でインポート)
-from .models import Opinion
+from .models import Opinion, db, User
 
 # ==================== 
 # Blueprint Instance Creation
@@ -51,44 +52,96 @@ def logout():
     return redirect(url_for('main.login'))
         
 # --- signup ---
-@main.route('/signup')
+@main.route('/signup', methods=['GET', 'POST'])
 def signup():
+    if request.method == 'POST':
+        email = request.form.get('email')
+        username = request.form.get('username')
+        password = request.form.get('password')
+        password_confirm = request.form.get('password_confirm')
+
+        if password != password_confirm:
+            flash('パスワードが一致しません。', 'danger')
+            return redirect(url_for('main.signup'))
+
+        user = User.query.filter_by(email=email).first()
+        if user:
+            flash('このメールアドレスは既に登録されています。', 'warning')
+            return redirect(url_for('main.signup'))
+
+        new_user = User(
+                email=email,
+                username=username,
+                password=generate_password_hash(password, method='pbkdf2:sha256')
+                )
+        new_user.save()
+
+        db.session.add(new_user)
+        db.session.commit()
+
+        flash("アカウントを作成しました。ログインしてください", "success")
+        return redirect(url_for('main.login'))
+
     return render_template('auth/signup.html')
 
 # ==================== 
 # Routes:View Function
 # ==================== 
 ## --- Home (Memo List & Registration) ---
-@main.route('/', methods=['GET', 'POST'])
-@login_required # 未ログイン時は自動でログイン画面に遷移する
+@main.route('/', methods=['GET'])
+@login_required
 def index():
-    # case POST
-    if request.method == 'POST':
-        ## formのname属性からデータを取得
-        opi_title = request.form.get('title')
-        opi_content = request.form.get('content')
-        opi_question_date = request.form.get('question_date')
+    # URLからsort パラメーターを取得 デフォルトはnewest
+    sort_type = request.args.get('sort', 'newest')
+    # 修正したモデルのメソッドを呼びだす
+    all_opinions = Opinion.get_all_active(user_id=current_user.id, sort_type=sort_type)
+    return render_template('index.html', name=current_user.username, opinions=all_opinions, currnet_sort=sort_type)
 
-        # インスタンス化
-        new_opinion = Opinion(
-                title = opi_title, # 左:カラム名 右:フォームから取得したデータが入った変数
-                content = opi_content,
-                question_date = opi_question_date,
-                user_id = current_user.id # usersテーブルのidから取得
-                )
+@main.route('/create', methods=['POST'])
+@login_required # 未ログイン時は自動でログイン画面に遷移する
+def create_opinion():
+    ## formのname属性からデータを取得
+    opi_title = request.form.get('title')
+    opi_content = request.form.get('content')
+    opi_question_date = request.form.get('question_date')
 
-        # Save
-        try:
-            new_opinion.save()
-            flash("メモを保存しました", "success")
-        except Exception as e:
-            flash(f"保存に失敗しました: {e}", "danger")
+    opi_category = request.form.get('category', 'question')
+    opi_priority = request.form.get('priority', 3)
+    opi_status = request.form.get('status', 'draft')
 
-        return redirect(url_for('main.index'))
+    category_name = request.form.get('category')
+    no_deadline = request.form.get('no_deadline')
+    deadline_val = request.form.get('deadline')
 
-    # case GET
-    all_opinions = Opinion.get_all_active()
-    return render_template('index.html', name=current_user.username,  opinions=all_opinions)
+    from .models import Category
+    category = Category.query.filter_by(name=category_name).first()
+
+    target_id = category.id if category else 1
+
+    # インスタンス化
+    new_opinion = Opinion(
+            title = opi_title, # 左:カラム名 右:フォームから取得したデータが入った変数
+            content = opi_content,
+            question_date = opi_question_date,
+            category_id = target_id,
+            priority = int(opi_priority),
+            status = opi_status,
+            deadline = None if no_deadline else deadline_val,
+            user_id = current_user.id # usersテーブルのidから取得
+            )
+
+    if opi_status == 'active':
+        new_opinion.last_reviewed_at = datetime.now()
+
+    # Save
+    try:
+        new_opinion.save()
+        flash("メモを保存しました", "success")
+    except Exception as e:
+        flash(f"保存に失敗しました: {e}", "danger")
+
+    return redirect(url_for('main.index'))
+
 
 # --- Edit ---
 @main.route('/edit/<int:opinion_id>', methods=['GET', 'POST'])

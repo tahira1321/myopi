@@ -27,3 +27,53 @@
 .navbar-dark .navbar-nav .nav-link:hover {
     color: #fff !important;
 }
+
+/* タブ全体の基本スタイル */
+.nav-tabs .nav-link {
+    transition: all 0.3s ease; /* 変化を滑らかにする */
+    border: 1px solid #dee2e6;
+    margin-right: 4px;
+    color: #6c757d;
+    background-color: #f8f9fa; /* 非選択時は薄いグレー */
+}
+
+/* 🌟 選択中のタブを大きく、目立たせる */
+.nav-tabs .nav-link.active {
+    transform: translateY(-5px); /* 少し上に浮かせる */
+    padding-top: 12px;           /* 高さを出す */
+    padding-bottom: 12px;
+    font-weight: bold;           /* 文字を太く */
+    border-bottom: 4px solid !important; /* 下線を太く */
+    box-shadow: 0 -4px 10px rgba(0,0,0,0.05); /* 軽い影で立体感 */
+}
+
+/* カテゴリごとの色設定（active時のみ色を付けると見やすい） */
+#q-tab.active {
+    background-color: #E3F2FD !important; /* パステル青 */
+    border-color: #E3F2FD #E3F2FD #0d6efd !important;
+    color: #0d6efd !important;
+}
+#o-tab.active {
+    background-color: #FFF3E0 !important; /* パステル橙 */
+    border-color: #FFF3E0 #FFF3E0 #fd7e14 !important;
+    color: #fd7e14 !important;
+}
+#c-tab.active {
+    background-color: #E8F5E9 !important; /* パステル緑 */
+    border-color: #E8F5E9 #E8F5E9 #198754 !important;
+    color: #198754 !important;
+}
+
+/* static/css/style.css */
+
+.toast {
+    border-radius: 25px; /* 丸みを持たせてAndroid風に */
+    opacity: 0.9;
+    font-size: 0.9rem;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+/* 画面下部に少し余白を空ける */
+.toast-container {
+    bottom: 20px !important;
+}

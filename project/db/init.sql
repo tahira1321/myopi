@@ -8,30 +8,76 @@ USE project_db;
 -- ====================
 -- 2. Table Definition (テーブル作成)
 -- ====================
-CREATE TABLE IF NOT EXISTS opinions (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    title TEXT NOT NULL,
-    content TEXT NOT NULL,
-    question_date DATE NOT NULL,
-    status VARCHAR(20) NOT NULL DEFAULT 'draft',
-    created_at DATETIME (6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
-    updated_at DATETIME (6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
-    INDEX idx_question_date (question_date),
-    INDEX idx_status (status)
-    )  ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+CREATE TABLE IF NOT EXISTS users (
+    id INTEGER PRIMARY KEY AUTO_INCREMENT,
+    username VARCHAR(255) NOT NULL,
+    email VARCHAR(255) NOT NULL,
+    password VARCHAR(255) NOT NULL
+    );
 
+CREATE TABLE IF NOT EXISTS categories (
+    id INTEGER PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(50) NOT NULL,
+    color_code VARCHAR(7) DEFAULT '#3E2EFD',
+    symbol VARCHAR(10) DEFAULT '^▽^',
+    user_id INTEGER NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES user (id) ON DELETE CASCADE
+    );
+
+CREATE TABLE IF NOT EXISTS opinions (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    title VARCHAR(255) NOT NULL,
+    content TEXT,
+
+    -- 拡張機能
+    category_id INTEGER,   -- 疑問、意見、子どもetc
+    priority INTEGER DEFAULT 3,                -- 重要度
+    urgency INTEGER DEFAULT 3,                 -- 緊急度
+    satisfaction INTEGER DEFAULT 0,            -- 納得度
+
+    -- ステータス管理
+    status VARCHAR(50) NOT NULL DEFAULT 'draft',
+
+    -- 時間管理
+    question_date DATE NOT NULL,
+    deadline DATE,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME (6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
+    last_reviewed_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+
+    -- ユーザー連携
+    user_id INTEGER,
+    FOREIGN KEY (user_id) REFERENCES user (id) ON DELETE CASCADE,
+    FOREIGN KEY (category_id) REFERENCES catetories (id) ON DEKETE SET NULL
+    );
 -- ====================
 -- 3. Initial Data (サンプルデータ)
 -- ====================
--- 動作確認用の初期データ（最初の1件目）
-INSERT INTO opinions (title, content, question_date, status)
-VALUES (
-    '開発スタート', 
-    '今日からメモアプリの開発を開始しました。', 
-    CURDATE(), 
-    'published'
-);
+-- 1. まずユーザーを作る
+INSERT INTO users (username, email, password) 
+VALUES ('tahira', 'tahira@example.com', 'pbkdf2:sha256:600000$pZpcAhPqocCg2oAf$8d1faf45c26faee62669bd2769de039de2ad7423324f4f5d2d75e8ca06462c00'); -- パスワードはハッシュ値が必要
 
+-- 2. 次にカテゴリを作る
+INSERT INTO categories (name, color_code, symbol, user_id) 
+VALUES 
+('疑問', '#E3F2FD', '🤔', 1),
+('意見', '#FFF3E0', '💡', 1),
+('子ども', '#E8F5E9', '👶', 1);
+
+-- 3. 最後にメモ（Opinion）を入れる
+-- category_id には、上記で作ったカテゴリの ID (1, 2, 3) を指定します
+INSERT INTO opinions (title, content, question_date, category_id, priority, urgency, status, user_id, deadline)
+VALUES (
+    'なぜ空は青いの？', 
+    '散乱が関係しているらしい。', 
+    CURRENT_DATE, 
+    3,    -- '子ども' カテゴリのID
+    5,    -- 重要度
+    20,   -- 緊急度 (%)
+    'active',
+    1,    -- ユーザーID
+    '2026-05-01' -- 期限
+);
 -- ====================
 -- Roadmap & Tips (自分への備忘録)
 -- ====================

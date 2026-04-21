@@ -47,6 +47,7 @@ def create_app():
     ## login
     # ログインしていないときに遷移させるページ
     login_manager.login_view = 'main.login'
+    login_manager.login_message = 'このページを見るにはログインが必要です。'
     # ログインを促すメッセージのカテゴリ
     login_manager.login_message_category = 'info'
     
@@ -89,6 +90,12 @@ def create_app():
             db.session.add(test_user)
             db.session.commit()
             print("--- テストユーザーを作成しました ---")
+
+    @login_manager.user_loader
+    def load_user(user_id):
+        from .models import User
+        return User.query.get(int(user_id))
+
 
     return app
 

@@ -6,7 +6,18 @@
 {% block content %}
 
 <!-- create modal -->
-<div class="container mt-4 text-end">
+<div class="container mt-4 d-flex justify-content-between align-items-center">
+    <form class="d-inline-flex" action="{{ url_for('main.index') }}" method="GET">
+        <select class="form-select form-select-sm shadow-sm" name="sort" onchange="this.form.submit()" style="width: auto;">
+            <!-- 並び替え項目 -->
+            <option value="newest" {% if current_sort == 'newest' %}selected{% endif %}>新しい順</option>
+            <option value="drafts" {% if current_sort == 'drafts' %}selected{% endif %}>下書きのみ</option>
+            <option value="active_only" {% if current_sort == 'active_only' %}selected{% endif %}>確定済のみ</option>
+            <option value="oldest" {% if current_sort == 'oldest' %}selected{% endif %}>古い順</option>
+            <option value="title" {% if current_sort == 'title' %}selected{% endif %}>タイトル順</option>
+        </select>
+    </form>
+
     <button class="btn btn-primary shadow-sm" type="button" data-bs-toggle="modal" data-bs-target="#createOpinionModal">
         + 新規メモ作成
     </button>
@@ -14,37 +25,80 @@
 
 <div id="createOpinionModal" class="modal fade" tabindex="-1" aria-labelledby="createOpinionModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 id="createOpinionModalLabel" class="modal-title">新規メモ入力</h5>
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header border-bottom-0">
+                <h5 id="createOpinionModalLabel" class="modal-title fw-bold">思考を記録する</h5>
                 <button class="btn-close" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
             </div> <!-- .modal-header -->
 
-            <form action="{{ url_for('main.index') }}" method="post" id="opi-form">
-                <div class="modal-body">
-                    <!-- title -->
-                    <div class="mb-3">
-                        <label class="form-label" for="title">タイトル</label>
-                        <input id="title" class="form-control" type="text" name="title" placeholder="テーマを入力" required>
-                    </div>
+            <ul id="opinionTab" class="nav nav-tabs px-3" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button id="q-tab" class="nav-link active" data-bs-toggle="tab" data-bs-target="#pane-common" type="button" role="tab" onclick="setCategory('question')">疑問</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button id="o-tab" class="nav-link" data-bs-toggle="tab" data-bs-target="#pane-common" type="button" role="tab" onclick="setCategory('opinion')">意見</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button id="c-tab" class="nav-link" data-bs-toggle="tab" data-bs-target="#pane-common" type="button" role="tab" onclick="setCategory('child')">どうして？</button>
+                </li>
+            </ul>
 
-                    <!-- content -->
-                    <div class="mb-3">
-                        <label class="form-label" for="content">内容</label>
-                        <textarea id="content" class="form-control" type="text" name="content" rows="5" placeholder="疑問点や学んだことを自由に記載" required></textarea>
-                    </div>
+            <form action="{{ url_for('main.create_opinion') }}" method="post" id="opi-form">
+                <div class="modal-body tab-content">
+                    <div id="pane-common" class="tab-pane fade show active" role="tabpanel">
+                        <input id="selected-category" type="hidden" name="category" value="question">
 
-                    <!-- date -->
-                    <div class="mb-3">
-                        <label class="form-label" for="question_date">日付</label>
-                        <input id="question_date" class="form-control" type="date" name="question_date" required>
-                    </div>
+                        <div class="alert alert-light border-0 py-2 mb-3">
+                            <small id="category-guide" class="text-muted">「なせ？」と思ったことを書き留めましょう。</small>
+                        </div>
+
+                        <!-- title -->
+                        <div class="mb-3">
+                            <label class="form-label fw-bold" for="title">タイトル</label>
+                            <input id="title" class="form-control" type="text" name="title" placeholder="テーマを入力" required>
+                        </div>
+
+                        <!-- content -->
+                        <div class="mb-3">
+                            <label class="form-label fw-bold" for="content">内容</label>
+                            <textarea id="content" class="form-control" name="content" rows="5" placeholder="疑問点や学んだことを自由に記載" required></textarea>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-7 mb-3">
+                                <label class="form-label">重要度</label>
+                                <input type="range" class="form-range" name="priority" min="1" max="5" step="1" value="3">
+                                <div class="d-flex justify-content-between small text-muted">
+                                    <span>低い</span>
+                                    <span>高い</span>
+                                </div>
+                            </div>
+                            <!-- date -->
+                            <div class="col-md-5 mb-3">
+                                <label class="form-label fw-bold" for="question_date">日付</label>
+                                <input id="question_date" class="form-control" type="date" name="question_date" required>
+                            </div>
+                        </div> <!-- .row -->
+
+                        <!-- limitdate -->
+                        <div class="mb-3">
+                            <label class="form-label" for="deadline">期限</label>
+                            <div class="input-group">
+                                <input id="deadline" class="form-control" type="date" name="deadline">
+                                <div class="input-group-text">
+                                    <input class="form-check-input mt-0" type="checkbox" id="no-deadline" name="no_deadline">
+                                    <label class="form-check-label ms-2" for="no-deadline">なし</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div> <!-- .tabpane -->
                 </div> <!-- .modal-body -->
 
-                <div class="modal-footer">
+                <div class="modal-footer border-top-0 d-flex justify-content-between">
                     <!-- buttons -->
-                    <button class="btn btn-secondary" type="button" data-bs-dismiss="modal">キャンセル</button>
-                    <button class="btn btn-primary" type="submit">確定</button>
+                    <button class="btn btn-outline-secondary" type="button" data-bs-dismiss="modal">キャンセル</button>
+                    <button class="btn btn-warning text-white me-2" type="submit" name="status" value="draft">一時保存</button>
+                    <button class="btn btn-success" type="submit" name="status" value="active">最終保存</button>
                 </div> <!-- .modal-footer -->
             </form>
         </div> <!-- .modal-content -->
@@ -94,7 +148,13 @@
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-start mb-2">
                         <h5 class="card-title fw-bold text-dark">{{ opinion.title }}</h5>
-                        <span class="badge bg-primary-subtle text-primary rounded-pill small">Question</span>
+                        <div>
+                            {% if opinion.status == 'draft' %}
+                            <span class="badge bg-warning-subtle text-warning border border-warning-subtle rounded-pill small me-1">下書き</span>
+                            {% endif %}
+                            <span class="badge bg-primary-subtle text-primary rounded-pill small">Question</span>
+                            <span class="badge bg-primary-subtle text-primary rounded-pill small">{{ opinion.category.name if opinion.category else 'No Category' }}</span>
+                        </div>
                     </div> <!-- .d-flex -->
 
                     <p class="card-text text-secondary" style="font-size: 0.95rem;">
@@ -123,5 +183,4 @@
         {% endfor %}
     </div> <!-- .row -->
 </div> <!-- .container -->
-
 {% endblock %}

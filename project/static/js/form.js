@@ -35,6 +35,21 @@ delBtn.forEach(function(Btn) {
     });
 });
 
+const pw = document.getElementById("password");
+const pwConfirm = document.getElementById("password_confirm");
+
+if (pw && pwConfirm) {
+    function validatePassword() {
+        if (pw.value !== pwConfirm.value) {
+            pwConfirm.setCustomValidity("パスワードが一致しません");
+        } else {
+            pwConfirm.setCustomValidity("");
+        }
+    }
+    pw.onchange = validatePassword;
+    pwConfirm.onkeyup = validatePassword;
+}
+
 /* =================================================================
  * [覚書] 編集ボタンのフロントエンド制御 (Edit Logic)
  * =================================================================
